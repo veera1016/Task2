@@ -31,49 +31,16 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          # Ensure Node.js and npm are installed
-          if ! command -v node &> /dev/null; then
-            echo "Node.js not found. Installing Node.js."
-            curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-            sudo apt-get install -y nodejs
+          sudo apt update -y
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt install -y nodejs
+          sudo npm install -g yarn pm2
+                    if [ ! -d ".git" ]; then
+            git clone https://github.com/veera1016/Task2.git .
+          else
+            git pull origin master
           fi
-          if ! command -v npm &> /dev/null; then
-            echo "npm not found. Please check Node.js installation."
-            exit 1
-          fi
-          
-          # Ensure Yarn is installed
-          if ! command -v yarn &> /dev/null; then
-            echo "Yarn not found. Installing Yarn."
-            sudo npm install -g yarn
-          fi
-
-          # Ensure PM2 is installed
-          if ! command -v pm2 &> /dev/null; then
-            echo "PM2 not found. Installing PM2."
-            sudo npm install -g pm2
-          fi
-
-          # Ensure the target directory exists
-          if [ ! -d "/home/***/Task2/src" ]; then
-            echo "Directory /home/***/Task2/src does not exist."
-            exit 1
-          fi
-
-          # Change to the target directory
-          cd /home/***/Task2/src
-          
-          # Ensure the directory is a valid Git repository
-          if [ ! -d ".git" ]; then
-            echo "Not a git repository."
-            exit 1
-          fi
-
-          # Pull the latest changes from the Git repository
-          git pull origin master
-
-          # Build the application
+          cd /home/ubuntu/Task2/src
+          yarn install
           NODE_ENV=production yarn build
-
-          # Restart the application using PM2
           pm2 restart strapi
