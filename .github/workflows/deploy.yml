@@ -31,7 +31,11 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd /home/ubuntu/Task2/src
+          sudo apt upgrade -y
+          curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+          sudo apt install -y nodejs
+          npm install -g yarn
           git pull origin master
+          cd /home/ubuntu/Task2/src
           NODE_ENV=production yarn build
           pm2 restart strapi
