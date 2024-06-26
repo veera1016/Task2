@@ -58,5 +58,5 @@ jobs:
 
             # Ensure PM2 restarts on reboot
             pm2 save
-            pm2 startup
+            sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ${{ secrets.EC2_USER }} --hp /home/${{ secrets.EC2_USER }}
           
