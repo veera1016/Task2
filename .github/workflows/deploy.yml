@@ -30,6 +30,13 @@ jobs:
             sudo apt-get install -y nodejs
             sudo npm install -g yarn pm2
 
+            echo "Cleaning up unnecessary packages..."
+            sudo apt autoremove -y
+
+            echo "Navigating to project directory..."
+            if [ ! -d "/home/ubuntu/Task2" ]; then
+              git clone https://github.com/veera1016/Task2.git /home/ubuntu/Task2
+            fi
             cd /home/ubuntu/Task2
 
             echo "Pulling latest changes from GitHub..."
@@ -42,7 +49,8 @@ jobs:
             NODE_ENV=production yarn build
 
             echo "Restarting application using PM2..."
-            pm2 describe strapi && pm2 restart strapi || pm2 start yarn --name strapi -- start
+            pm2 delete strapi || true
+            pm2 start yarn --name strapi -- start --cwd /home/ubuntu/Task2
 
             echo "Checking PM2 logs..."
             pm2 logs strapi
