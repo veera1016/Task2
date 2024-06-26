@@ -40,14 +40,8 @@ jobs:
             fi
             cd /home/ubuntu/Task2
 
-            echo "Stashing local changes to .env file..."
-            git stash push -m "Stashing .env changes" .env
-
             echo "Pulling latest changes from GitHub..."
             git pull origin master
-
-            echo "Applying stashed changes to .env file..."
-            git stash pop
 
             echo "Installing dependencies..."
             yarn install
