@@ -31,7 +31,6 @@ jobs:
             sudo npm install -g yarn
             sudo npm install -g pm2
 
-
             echo "Cleaning up unnecessary packages..."
             sudo apt autoremove -y
 
@@ -44,20 +43,27 @@ jobs:
             echo "Pulling latest changes from GitHub..."
             git pull origin master
 
+            echo "Installing dependencies..."
+            yarn install
+
             echo "Building project for production..."
             NODE_ENV=production yarn build
 
-            yarn start
+            echo "Setting up environment variables..."
+            echo "HOST=0.0.0.0" > .env
+            echo "PORT=1337" >> .env
+            echo "APP_KEYS=eKuf6iqZPG24jDqrLCAwcus31CnnE6GqCkbzDUBsWHM=,JiEcxfUEuaX/QDAO+3abi/+dBZRFTC/ecowJzousCE0=,XyiaQY9YaLdQxoXPrnIMXvdeY0mTX5JJLIgSG977Yhw=,vL2OGQ1V+xMtjSV0mLAncuFZmZZLmtcqK0KKeUflR/M=" >> .env
 
             echo "Restarting application using PM2..."
             pm2 delete strapi || true
-            pm2 start "yarn start" --name strapi --cwd /home/ubuntu/Task2
+            pm2 start "strapi start" --name strapi --cwd /home/ubuntu/Task2 --update-env
 
             echo "Checking PM2 logs..."
             pm2 logs strapi
 
-            pm2 start npm --name strapi -- start
+            echo "Setting up PM2 to start on boot..."
             pm2 save
-            pm2 startup
+            sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ${{ secrets.EC2_USER }} --hp /home/${{ secrets.EC2_USER }}
 
+            echo "Deployment completed successfully!"
           EOF
