@@ -21,11 +21,10 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            set -e
-
+          set -e
+            
           cd /home/ubuntu/Task2
-          git pull origin develop
+          git pull origin master
           yarn build 
-          cd examples/getstarted/ 
           pm2 restart ecosystem.config.js --only strapi-getstarted
           pm2 save
