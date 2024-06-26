@@ -42,7 +42,7 @@ jobs:
             if [ ! -d "/home/ubuntu/Task2" ]; then
               git clone https://github.com/veera1016/Task2.git /home/ubuntu/Task2
             fi
-            cd /home/ubuntu/Task2/src
+            cd /home/ubuntu/Task2
 
             # Pull the latest changes from the GitHub repository
             git pull origin master
