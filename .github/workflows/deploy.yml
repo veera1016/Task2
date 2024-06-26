@@ -50,7 +50,7 @@ jobs:
 
             echo "Restarting application using PM2..."
             pm2 delete strapi || true
-            pm2 start yarn --name strapi -- start --cwd /home/ubuntu/Task2
+            pm2 start "yarn start" --name strapi --cwd /home/ubuntu/Task2
 
             echo "Checking PM2 logs..."
             pm2 logs strapi
