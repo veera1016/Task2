@@ -34,17 +34,11 @@ jobs:
             echo "Cleaning up unnecessary packages..."
             sudo apt autoremove -y
 
-            echo "Navigating to project directory..."
-            if [ ! -d "/home/ubuntu/Task2" ]; then
-              git clone https://github.com/veera1016/Task2.git /home/ubuntu/Task2
-            fi
-            cd /home/ubuntu/Task2
-
-          if [ -d "/home/ubuntu/my-strapi-api" ]; then
+          if [ -d "/home/ubuntu/Task2" ]; then
             cd /home/ubuntu/Task2
             git pull origin master
           else
-            git clone $REPO_URL /home/ubuntu/my-strapi-api
+            git clone https://github.com/veera1016/Task2.git /home/ubuntu/Task2
             cd /home/ubuntu/Task2
           fi
           npm install
