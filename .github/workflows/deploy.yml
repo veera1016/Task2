@@ -40,30 +40,14 @@ jobs:
             fi
             cd /home/ubuntu/Task2
 
-            echo "Pulling latest changes from GitHub..."
+          if [ -d "/home/ubuntu/my-strapi-api" ]; then
+            cd /home/ubuntu/Task2
             git pull origin master
-
-            echo "Installing dependencies..."
-            yarn install
-
-            echo "Building project for production..."
-            NODE_ENV=production yarn build
-
-            echo "Setting up environment variables..."
-            echo "HOST=0.0.0.0" > .env
-            echo "PORT=1337" >> .env
-            echo "APP_KEYS=ePukA4aExZLOQv0TctXMPsTGVFJhLZk5npWqv38H0B4=,tALPsJRTl5d9qmvA4s5ZQKsBOzPE0ldVbmZqglC5RYw=,ad89VlKKh6ZKx5KsTzTx6G7RqkXtNvFzc7dCh8PMdRo=,ZbGpJSWwB2EPYBzWoqeTuXhUHZGS6qDBgnRPhKh2oq0=" >> .env
-
-            echo "Restarting application using PM2..."
-            pm2 delete strapi || true
-            pm2 start "strapi start" --name strapi --cwd /home/ubuntu/Task2 --update-env
-
-            echo "Checking PM2 logs..."
-            pm2 logs strapi
-
-            echo "Setting up PM2 to start on boot..."
-            pm2 save
-            sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ${{ secrets.EC2_USER }} --hp /home/${{ secrets.EC2_USER }}
-
-            echo "Deployment completed successfully!"
+          else
+            git clone $REPO_URL /home/ubuntu/my-strapi-api
+            cd /home/ubuntu/Task2
+          fi
+          npm install
+          pm2 start npm --name "strapi" -- start || pm2 restart "strapi"
+        
           EOF
