@@ -28,7 +28,9 @@ jobs:
             sudo apt-get upgrade -y
             curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
             sudo apt-get install -y nodejs
-            sudo npm install -g yarn pm2
+            sudo npm install -g yarn
+            sudo npm install -g pm2
+
 
             echo "Cleaning up unnecessary packages..."
             sudo apt autoremove -y
@@ -42,11 +44,10 @@ jobs:
             echo "Pulling latest changes from GitHub..."
             git pull origin master
 
-            echo "Installing dependencies..."
-            yarn install
-
             echo "Building project for production..."
             NODE_ENV=production yarn build
+
+            yarn start
 
             echo "Restarting application using PM2..."
             pm2 delete strapi || true
@@ -55,12 +56,8 @@ jobs:
             echo "Checking PM2 logs..."
             pm2 logs strapi
 
-            echo "Checking if Strapi is running..."
-            pm2 status
-
-            echo "Saving PM2 process list and setting up startup script..."
+            pm2 start npm --name strapi -- start
             pm2 save
-            sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ${{ secrets.EC2_USER }} --hp /home/${{ secrets.EC2_USER }}
+            pm2 startup
 
-            echo "Deployment completed successfully!"
           EOF
