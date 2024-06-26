@@ -21,10 +21,38 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          set -e
-            
-          cd /home/ubuntu/Task2
-          git pull origin master
-          yarn build 
-          pm2 restart
-          pm2 save
+            set -e
+
+            echo "Updating and installing dependencies..."
+            sudo apt-get update -y
+            sudo apt-get upgrade -y
+            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            sudo npm install -g yarn pm2
+
+            cd /home/ubuntu/Task2
+
+            echo "Pulling latest changes from GitHub..."
+            git pull origin master
+
+            echo "Installing dependencies..."
+            yarn install
+
+            echo "Building project for production..."
+            NODE_ENV=production yarn build
+
+            echo "Restarting application using PM2..."
+            pm2 describe strapi && pm2 restart strapi || pm2 start yarn --name strapi -- start
+
+            echo "Checking PM2 logs..."
+            pm2 logs strapi
+
+            echo "Checking if Strapi is running..."
+            pm2 status
+
+            echo "Saving PM2 process list and setting up startup script..."
+            pm2 save
+            sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ${{ secrets.EC2_USER }} --hp /home/${{ secrets.EC2_USER }}
+
+            echo "Deployment completed successfully!"
+          EOF
