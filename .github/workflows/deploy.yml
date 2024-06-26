@@ -31,32 +31,35 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-            sudo apt update -y
-            sudo apt upgrade -y
+            echo "Updating and installing dependencies..."
+            sudo apt-get update -y
+            sudo apt-get upgrade -y
             curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-            sudo apt install -y nodejs
+            sudo apt-get install -y nodejs
             sudo npm install -g yarn
             sudo npm install -g pm2
 
-            # Navigate to the project directory
+            echo "Navigating to project directory..."
             if [ ! -d "/home/ubuntu/Task2" ]; then
               git clone https://github.com/veera1016/Task2.git /home/ubuntu/Task2
             fi
             cd /home/ubuntu/Task2
 
-            # Pull the latest changes from the GitHub repository
+            echo "Pulling latest changes from GitHub..."
             git pull origin master
 
-            # Install dependencies
+            echo "Installing dependencies..."
             yarn install
 
-            # Build the project for production
+            echo "Building project for production..."
             NODE_ENV=production yarn build
 
-            # Start the application using PM2
+            echo "Restarting application using PM2..."
             pm2 restart strapi || pm2 start yarn --name strapi -- start
 
-            # Ensure PM2 restarts on reboot
+            echo "Saving PM2 process list and setting up startup script..."
             pm2 save
             sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ${{ secrets.EC2_USER }} --hp /home/${{ secrets.EC2_USER }}
+
+            echo "Deployment completed successfully!"
           
