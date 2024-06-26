@@ -31,20 +31,32 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          sudo apt update -y
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt install -y nodejs
-          sudo npm install -g yarn pm2
-                    if [ ! -d ".git" ]; then
-            git clone https://github.com/veera1016/Task2.git .
-          else
+            sudo apt update -y
+            sudo apt upgrade -y
+            curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+            sudo apt install -y nodejs
+            sudo npm install -g yarn
+            sudo npm install -g pm2
+
+            # Navigate to the project directory
+            if [ ! -d "/home/ubuntu/Task2" ]; then
+              git clone https://github.com/veera1016/Task2.git /home/ubuntu/Task2
+            fi
+            cd /home/ubuntu/Task2
+
+            # Pull the latest changes from the GitHub repository
             git pull origin master
-          fi
-          cd /home/ubuntu/Task2/src
-          yarn install
-          NODE_ENV=production yarn build
-           if pm2 describe strapi > /dev/null; then
-            pm2 restart strapi --update-env
-          else
-            pm2 start yarn --name strapi -- start
-          fi
+
+            # Install dependencies
+            yarn install
+
+            # Build the project for production
+            NODE_ENV=production yarn build
+
+            # Start the application using PM2
+            pm2 restart strapi || pm2 start yarn --name strapi -- start
+
+            # Ensure PM2 restarts on reboot
+            pm2 save
+            pm2 startup
+          
