@@ -26,18 +26,9 @@ jobs:
             echo "Updating and installing dependencies..."
             sudo apt-get update -y
             sudo apt-get upgrade -y
-
-            echo "Installing NVM..."
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-            echo "Installing Node.js..."
-            nvm install 14
-            nvm use 14
-
-            echo "Installing Yarn and PM2..."
-            npm install -g yarn pm2
+            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            sudo npm install -g yarn pm2
 
             echo "Navigating to project directory..."
             if [ ! -d "/home/ubuntu/Task2" ]; then
